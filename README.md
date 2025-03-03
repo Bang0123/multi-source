@@ -62,3 +62,14 @@ flash_dongle.sh
 ```
 
 Note: You'll need to get the dongle in DFU mode by pressing the small side buttton with a nail. The dongle should then start fading a red light in and out.
+
+### MacOS requirements for flashing nrf dongle
+
+Install the required nrfutil and its dependencies with these commands.
+
+```sh
+brew install nrfutil
+brew install --cask segger-jlink
+nrfutil install nrf5sdk-tools
+nrfutil install device
+```

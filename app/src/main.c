@@ -12,6 +12,8 @@
 #include <zephyr/bluetooth/audio/bap_lc3_preset.h>
 #include <zephyr/drivers/hwinfo.h>
 
+#include "rgb_led.h"
+
 BUILD_ASSERT(strlen(CONFIG_BROADCAST_CODE) <= BT_AUDIO_BROADCAST_CODE_SIZE,
 	     "Invalid broadcast code");
 
@@ -1234,9 +1236,18 @@ int main(void)
 	int err, ret;
 	uint8_t hwid[3];
 
+	/* Check that the RGB PWM devices are present*/
+	printk("Initialize RGB LED...\n");
+	err = rgb_led_init();
+	if (err) {
+		printk("Error setting up RGB light!\n");
+		return 0;
+	}
+	rgb_led_set(0, 0xff, 0);
 	err = bt_enable(NULL);
 	if (err) {
 		printk("Bluetooth init failed (err %d)\n", err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 	printk("Bluetooth initialized\n");
@@ -1254,6 +1265,7 @@ int main(void)
 	if (err != 0) {
 		printk("Unable to create extended advertising set: %d\n",
 			err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1262,6 +1274,7 @@ int main(void)
 	if (err) {
 		printk("Failed to set periodic advertising parameters"
 		" (err %d)\n", err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1269,6 +1282,7 @@ int main(void)
 	err = setup_broadcast_source(&broadcast_source);
 	if (err != 0) {
 		printk("Unable to setup broadcast source: %d\n", err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1297,6 +1311,7 @@ int main(void)
 	if (err != 0) {
 		printk("Failed to set extended advertising data: %d\n",
 			err);
+			rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1304,6 +1319,7 @@ int main(void)
 	err = bt_bap_broadcast_source_get_base(broadcast_source, &base_buf);
 	if (err != 0) {
 		printk("Failed to get encoded BASE: %d\n", err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1315,6 +1331,7 @@ int main(void)
 	if (err != 0) {
 		printk("Failed to set periodic advertising data: %d\n",
 			err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1323,6 +1340,7 @@ int main(void)
 	if (err) {
 		printk("Failed to start extended advertising: %d\n",
 			err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1331,6 +1349,7 @@ int main(void)
 	if (err) {
 		printk("Failed to enable periodic advertising: %d\n",
 			err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1338,6 +1357,7 @@ int main(void)
 	err = bt_bap_broadcast_source_start(broadcast_source, adv);
 	if (err != 0) {
 		printk("Unable to start broadcast source: %d\n", err);
+		rgb_led_set(0xff, 0, 0);
 		return 0;
 	}
 
@@ -1353,6 +1373,7 @@ int main(void)
 			stream_sent_cb(&streams[i].stream);
 		}
 	}
+	rgb_led_set(0, 0, 0xff);
 
 	return 0;
 }
